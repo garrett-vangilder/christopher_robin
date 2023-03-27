@@ -1,4 +1,4 @@
-SHELL := /bin/bash
+SHELL := /bin/zsh
 
 .PHONY: start-honey-pot
 start-honey-pot:

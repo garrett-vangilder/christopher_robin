@@ -1,8 +1,11 @@
-from flask import Flask, request
+from flask import Flask
 
 app = Flask(__name__)
 
-@app.route('/<web_path:web_path>')
+@app.route('/<string:web_path>')
 def honey_pot(web_path):
     # TODO do something
     return "Think, think, think."
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')

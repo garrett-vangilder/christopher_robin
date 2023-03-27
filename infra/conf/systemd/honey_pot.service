@@ -1,0 +1,11 @@
+[Unit]
+Description=Gunicorn instance to serve honey_pot
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/www
+ExecStart=gunicorn --bind unix:honey_pot.sock -m 007 wsgi:application
+
+[Install]
+WantedBy=multi-user.target
