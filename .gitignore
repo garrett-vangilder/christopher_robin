@@ -50,3 +50,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 .terraform.lock.hcl
+
+# GCP
+gcp_service_account_key.json

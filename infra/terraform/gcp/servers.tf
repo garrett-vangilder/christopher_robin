@@ -1,16 +1,42 @@
-resource "aws_instance" "flask_server" {
-  ami                    = "ami-0557a15b87f6559cf" # Ubuntu v22.X.X
-  instance_type          = "t2.micro"              # Free
-  vpc_security_group_ids = [aws_security_group.sec_group_flask.id]
+resource "google_compute_instance" "flask_server" {
+  name         = "flask-server"
+  machine_type = "e2-micro"
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+    }
+  }
 
-  key_name = data.aws_key_pair.deployer.key_name
+  network_interface {
+    network = "default"
+    access_config {
+    }
+  }
+
+  metadata = {
+    ssh-keys     = "ubuntu:${file(var.pub_ssh_key_path)}"
+    network-tags = "fw-flask"
+  }
+
+  tags = ["flask-server"]
+
+  service_account {
+    scopes = ["cloud-platform"]
+  }
+}
+
+
+resource "null_resource" "ssh_connection" {
+  depends_on = [google_compute_instance.flask_server]
 
   connection {
     type        = "ssh"
     user        = "ubuntu"
-    private_key = file(var.aws_pem_key_path)
-    host        = self.public_ip
+    private_key = file(var.priv_ssh_key_path)
+    host        = google_compute_instance.flask_server.network_interface[0].access_config[0].nat_ip
   }
+
 
   # install os level deps
   provisioner "remote-exec" {
@@ -18,7 +44,7 @@ resource "aws_instance" "flask_server" {
       "sudo DEBIAN_FRONTEND=noninteractive apt update -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt-get update -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt install nginx -y",
-      "sudo DEBIAN_FRONTEND=noninteractive apt install python3.10-venv -y", 
+      "sudo DEBIAN_FRONTEND=noninteractive apt install python3.10-venv -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt install python3-pip -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt install python3-dev -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt install build-essential -y",
@@ -39,8 +65,8 @@ resource "aws_instance" "flask_server" {
   provisioner "file" {
     source      = "../../honey_pot/wsgi.py"
     destination = "/tmp/wsgi.py"
-  }  
-  
+  }
+
   provisioner "file" {
     source      = "../../honey_pot/app.py"
     destination = "/tmp/app.py"
@@ -73,7 +99,7 @@ resource "aws_instance" "flask_server" {
       "sudo rm -rf /etc/nginx/sites-available/default",
       "sudo rm -rf /etc/nginx/sites-enabled/default",
     ]
-  }  
+  }
 
   # because gunicorn needs to run on port 80, we need to bind the permissions of our user
   provisioner "remote-exec" {
@@ -100,7 +126,7 @@ resource "aws_instance" "flask_server" {
       "sudo systemctl start honey_pot",
       "sudo systemctl enable honey_pot",
     ]
-  }  
+  }
 
   # startup nginx
   provisioner "remote-exec" {
@@ -110,5 +136,5 @@ resource "aws_instance" "flask_server" {
       "sudo nginx -t",
       "sudo systemctl restart nginx",
     ]
-  }    
+  }
 }
