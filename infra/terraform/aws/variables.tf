@@ -1,3 +1,7 @@
+variable "server_count" {
+    type = number
+}
+
 variable "aws_profile" {
     type = string
 }

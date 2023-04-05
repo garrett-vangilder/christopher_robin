@@ -1,4 +1,5 @@
 resource "aws_instance" "flask_server" {
+  count                  = var.server_count
   ami                    = "ami-0557a15b87f6559cf" # Ubuntu v22.X.X
   instance_type          = "t2.micro"              # Free
   vpc_security_group_ids = [aws_security_group.sec_group_flask.id]
@@ -18,7 +19,7 @@ resource "aws_instance" "flask_server" {
       "sudo DEBIAN_FRONTEND=noninteractive apt update -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt-get update -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt install nginx -y",
-      "sudo DEBIAN_FRONTEND=noninteractive apt install python3.10-venv -y", 
+      "sudo DEBIAN_FRONTEND=noninteractive apt install python3.10-venv -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt install python3-pip -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt install python3-dev -y",
       "sudo DEBIAN_FRONTEND=noninteractive apt install build-essential -y",
@@ -39,8 +40,8 @@ resource "aws_instance" "flask_server" {
   provisioner "file" {
     source      = "../../honey_pot/wsgi.py"
     destination = "/tmp/wsgi.py"
-  }  
-  
+  }
+
   provisioner "file" {
     source      = "../../honey_pot/app.py"
     destination = "/tmp/app.py"
@@ -73,7 +74,7 @@ resource "aws_instance" "flask_server" {
       "sudo rm -rf /etc/nginx/sites-available/default",
       "sudo rm -rf /etc/nginx/sites-enabled/default",
     ]
-  }  
+  }
 
   # because gunicorn needs to run on port 80, we need to bind the permissions of our user
   provisioner "remote-exec" {
@@ -100,7 +101,7 @@ resource "aws_instance" "flask_server" {
       "sudo systemctl start honey_pot",
       "sudo systemctl enable honey_pot",
     ]
-  }  
+  }
 
   # startup nginx
   provisioner "remote-exec" {
@@ -110,5 +111,5 @@ resource "aws_instance" "flask_server" {
       "sudo nginx -t",
       "sudo systemctl restart nginx",
     ]
-  }    
+  }
 }

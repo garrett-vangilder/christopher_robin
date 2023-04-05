@@ -1,9 +1,23 @@
+variable "server_count" {
+    type = number
+}
+
 variable "pub_ssh_key_path" {
     type = string
 }
 
 
 variable "priv_ssh_key_path" {
+  type = string
+}
+
+
+variable "pub_rsa_ssh_key_path" {
+    type = string
+}
+
+
+variable "priv_rsa_ssh_key_path" {
   type = string
 }
 

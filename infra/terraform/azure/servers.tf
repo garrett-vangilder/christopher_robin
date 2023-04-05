@@ -1,44 +1,49 @@
-resource "google_compute_instance" "flask_server" {
+resource "azurerm_linux_virtual_machine" "flask_server" {
   count = var.server_count
 
-  name         = "flask-server-${count.index}"
-  machine_type = "e2-micro"
-  zone         = "us-central1-a"
-  boot_disk {
-    initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2204-lts"
-    }
+  name                      = "flask-server-${count.index}"
+  location                  = "eastus"
+  resource_group_name       = azurerm_resource_group.rg.name
+  size                      = "Standard_B1s"
+  admin_username            = "ubuntu"
+  disable_password_authentication = true
+  network_interface_ids     = [azurerm_network_interface.nic[count.index].id]
+
+  admin_ssh_key {
+    username   = "ubuntu"
+    public_key =file(var.pub_ssh_key_path)
   }
 
-  network_interface {
-    network = "default"
-    access_config {
-    }
+  os_disk {
+    caching                 = "ReadWrite"
+    storage_account_type    = "Standard_LRS"
+  }
+  source_image_reference {
+    offer                 = "0001-com-ubuntu-server-focal"
+    publisher             = "Canonical"
+    sku                   = "20_04-lts-gen2"
+    version                 = "latest"
   }
 
-  metadata = {
-    ssh-keys     = "ubuntu:${file(var.pub_ssh_key_path)}"
-    network-tags = "fw-flask"
+  tags = {
+    Name = "flask-server"
   }
 
-  tags = ["flask-server"]
-
-  service_account {
-    scopes = ["cloud-platform"]
+  identity {
+    type = "SystemAssigned"
   }
 }
-
 
 resource "null_resource" "ssh_connection" {
   count = var.server_count
 
-  depends_on = [google_compute_instance.flask_server]
+  depends_on = [azurerm_linux_virtual_machine.flask_server]
 
   connection {
     type        = "ssh"
     user        = "ubuntu"
     private_key = file(var.priv_ssh_key_path)
-    host        = google_compute_instance.flask_server[count.index].network_interface[0].access_config[0].nat_ip
+    host        = azurerm_linux_virtual_machine.flask_server[count.index].public_ip_address
   }
 
   # install os level deps
@@ -140,4 +145,4 @@ resource "null_resource" "ssh_connection" {
       "sudo systemctl restart nginx",
     ]
   }
-}
+}  

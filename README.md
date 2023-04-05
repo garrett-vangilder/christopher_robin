@@ -28,9 +28,19 @@ Install `aws` cli, instructions can be found [here](https://docs.aws.amazon.com/
 
 **Note:** Prior to running `terraform plan` ensure that `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` is configured correctly
 
+### Azure
+
+Prior to provisioning infra via terraform, complete the following:
+
+1. Create a [Microsoft Azure account](https://azure.microsoft.com/free/)
+2. Install [AzureRM Client](https://learn.microsoft.com/en-us/azure/developer/terraform/get-started-windows-bash?tabs=bash)
+3. Login via az client `az login`
+
 ### GCP
 
 Prior to booting up infrastructure complete the following:
 
 1. Create a GCP account
-2. 
+2. Create a GCP project
+3. Create a related service account for the project
+<!-- TODO: Complete pre-reqs -->
