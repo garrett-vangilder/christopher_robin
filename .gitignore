@@ -53,3 +53,5 @@ terraform.rc
 
 # GCP
 gcp_service_account_key.json
+
+.vscode
