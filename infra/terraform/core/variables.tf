@@ -1,11 +1,3 @@
-variable "server_count" {
-    type = number
-}
-
-variable "data_ingest_endpoint" {
-    type = string
-}
-
 variable "aws_profile" {
     type = string
 }

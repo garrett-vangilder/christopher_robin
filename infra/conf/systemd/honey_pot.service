@@ -4,8 +4,9 @@ After=network.target
 
 [Service]
 User=ubuntu
+EnvironmentFile=/home/ubuntu/www/env
 WorkingDirectory=/home/ubuntu/www
-ExecStart=gunicorn --bind unix:honey_pot.sock -m 007 wsgi:application
+ExecStart=gunicorn --bind unix:honey_pot.sock -m 007 --env DATA_INGEST_ENDPOINT=$(echo $DATA_INGEST_ENDPOINT) wsgi:application
 
 [Install]
 WantedBy=multi-user.target
