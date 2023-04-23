@@ -58,4 +58,4 @@ gcp_service_account_key.json
 *.zip
 venv
 
-data/*
+data/!cleaned_data.csv
