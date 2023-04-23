@@ -28,7 +28,6 @@ class RequestParser:
                 "remote_addr": self.request.remote_addr,
                 "url": self.request.url,
                 "full_path": self.request.full_path,
-                "query_string": self.request.query_string,
             }
         except BadRequest:
             data = {
@@ -42,7 +41,6 @@ class RequestParser:
                 "remote_addr": self.request.remote_addr,
                 "url": self.request.url,
                 "full_path": self.request.full_path,
-                "query_string": self.request.query_string,                
             }
 
         return data

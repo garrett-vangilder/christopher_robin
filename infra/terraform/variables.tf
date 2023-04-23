@@ -37,6 +37,10 @@ variable "aws_region" {
   type = string
 }
 
+variable "aws_bucket_name" {
+  type = string
+}
+
 
 ##############################
 # GCP

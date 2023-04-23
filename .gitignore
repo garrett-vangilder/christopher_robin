@@ -56,3 +56,6 @@ gcp_service_account_key.json
 
 .vscode
 *.zip
+venv
+
+data/*

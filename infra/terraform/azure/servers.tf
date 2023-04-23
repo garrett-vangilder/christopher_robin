@@ -46,6 +46,12 @@ resource "null_resource" "ssh_connection" {
     host        = azurerm_linux_virtual_machine.flask_server[count.index].public_ip_address
   }
 
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'export DATA_INGEST_ENDPOINT=${var.data_ingest_endpoint}' >> ~/.bashrc"
+    ]
+  }  
+
   # install os level deps
   provisioner "remote-exec" {
     inline = [
@@ -81,6 +87,11 @@ resource "null_resource" "ssh_connection" {
   }
 
   provisioner "file" {
+    source      = "../../honey_pot/parser.py"
+    destination = "/tmp/parser.py"
+  }  
+
+  provisioner "file" {
     source      = "../../honey_pot/requirements.txt"
     destination = "/tmp/requirements.txt"
   }
@@ -100,6 +111,7 @@ resource "null_resource" "ssh_connection" {
     inline = [
       "mkdir /home/ubuntu/www",
       "mv /tmp/app.py /home/ubuntu/www/",
+      "mv /tmp/parser.py /home/ubuntu/www/",
       "mv /tmp/wsgi.py /home/ubuntu/www/",
       "mv /tmp/requirements.txt /home/ubuntu/www/",
       "sudo mv /tmp/honey_pot.service /etc/systemd/system/",
@@ -127,6 +139,15 @@ resource "null_resource" "ssh_connection" {
       "pip install -r requirements.txt",
     ]
   }
+
+  # create envfile
+  provisioner "remote-exec" {
+    inline = [
+      "cd /home/ubuntu/www",
+      "touch env",
+      "echo 'DATA_INGEST_ENDPOINT=${var.data_ingest_endpoint}' >> env",
+    ]
+  }  
 
   # startup systemd process
   provisioner "remote-exec" {

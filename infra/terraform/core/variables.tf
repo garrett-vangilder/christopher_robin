@@ -9,3 +9,7 @@ variable "aws_region" {
 variable "aws_pem_key_path" {
     type = string
 }
+
+variable "aws_bucket_name" {
+  type = string
+}

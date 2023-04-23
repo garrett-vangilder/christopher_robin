@@ -3,7 +3,6 @@ resource "google_compute_instance" "flask_server" {
 
   name         = "flask-server-${count.index}"
   machine_type = "e2-micro"
-  zone         = "us-central1-a"
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-2204-lts"
@@ -18,7 +17,7 @@ resource "google_compute_instance" "flask_server" {
 
   metadata = {
     ssh-keys     = "ubuntu:${file(var.pub_ssh_key_path)}"
-    network-tags = "fw-flask"
+    network-tags = "fw-flask-${count.index}"
   }
 
   tags = ["flask-server"]
@@ -40,6 +39,12 @@ resource "null_resource" "ssh_connection" {
     private_key = file(var.priv_ssh_key_path)
     host        = google_compute_instance.flask_server[count.index].network_interface[0].access_config[0].nat_ip
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'export DATA_INGEST_ENDPOINT=${var.data_ingest_endpoint}' >> ~/.bashrc"
+    ]
+  }    
 
   # install os level deps
   provisioner "remote-exec" {
@@ -76,6 +81,11 @@ resource "null_resource" "ssh_connection" {
   }
 
   provisioner "file" {
+    source      = "../../honey_pot/parser.py"
+    destination = "/tmp/parser.py"
+  }    
+
+  provisioner "file" {
     source      = "../../honey_pot/requirements.txt"
     destination = "/tmp/requirements.txt"
   }
@@ -96,6 +106,7 @@ resource "null_resource" "ssh_connection" {
       "mkdir /home/ubuntu/www",
       "mv /tmp/app.py /home/ubuntu/www/",
       "mv /tmp/wsgi.py /home/ubuntu/www/",
+      "mv /tmp/parser.py /home/ubuntu/www/",      
       "mv /tmp/requirements.txt /home/ubuntu/www/",
       "sudo mv /tmp/honey_pot.service /etc/systemd/system/",
       "sudo mv /tmp/honey_pot /etc/nginx/sites-available/",
@@ -122,6 +133,15 @@ resource "null_resource" "ssh_connection" {
       "pip install -r requirements.txt",
     ]
   }
+
+  # create envfile
+  provisioner "remote-exec" {
+    inline = [
+      "cd /home/ubuntu/www",
+      "touch env",
+      "echo 'DATA_INGEST_ENDPOINT=${var.data_ingest_endpoint}' >> env",
+    ]
+  }   
 
   # startup systemd process
   provisioner "remote-exec" {

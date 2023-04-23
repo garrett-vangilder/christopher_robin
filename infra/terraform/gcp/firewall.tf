@@ -1,5 +1,6 @@
 resource "google_compute_firewall" "fw-flask" {
-  name    = "fw-flask"
+  count = var.server_count  
+  name    = "fw-flask-${count.index}"
   network = "default"
 
   allow {

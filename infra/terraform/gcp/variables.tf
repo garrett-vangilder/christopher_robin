@@ -2,6 +2,10 @@ variable "server_count" {
     type = number
 }
 
+variable "data_ingest_endpoint" {
+    type = string
+}
+
 variable "gcp_project_id" {
     type = string
 }
