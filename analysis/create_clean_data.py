@@ -129,6 +129,11 @@ def main():
     # make created a datetime column
     df["created"] = pd.to_datetime(df["created"])
 
+    # print request count by day
+    logger.info(df.groupby(df["created"].dt.day).size().sort_index())
+
+    import pdb; pdb.set_trace()
+
     # add requesting_ip column to dataframe from headers host column
     df["requesting_ip"] = df["headers"].apply(lambda x: x.get("X-Forwarded-For", "Unknown"))
 
