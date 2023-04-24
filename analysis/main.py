@@ -49,7 +49,7 @@ def main():
 
     # create bar graph for each provider stacked by classification
     df.groupby(["provider", "gn_classification"]).size().unstack().plot(kind="bar", stacked=True, color=colors)
-
+    import pdb; pdb.set_trace()
     plt.show()
 
     # create table for each provider with top common malicious ip addresses
@@ -61,14 +61,12 @@ def main():
     _, ax = plt.subplots()
 
     ax.axis('off')
-    # ax.table(cellText=most_common_malicious_ips.values.reshape(1, -1), colLabels=most_common_malicious_ips.index, loc='center')
-
-    import pdb; pdb.set_trace()
-    # increase font size
-    plt.rcParams.update({'font.size': 22})
-    ax.table(cellText=most_common_full_path.values.reshape(1, -1), colLabels=most_common_full_path.index, loc='center')
-
+    ax.table(cellText=most_common_malicious_ips.values.reshape(1, -1), colLabels=most_common_malicious_ips.index, loc='center')
     plt.show()
+
+    # standard deviation of malicious traffic by provider
+    logger.info(df[df["gn_classification"] == "malicious"].groupby("provider").size().std())
+
 
 
     plt.close()

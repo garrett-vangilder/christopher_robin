@@ -57,3 +57,5 @@ gcp_service_account_key.json
 .vscode
 *.zip
 venv
+
+.DS_Store
