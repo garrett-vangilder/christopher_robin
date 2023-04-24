@@ -65,6 +65,7 @@ def get_gn_classification(ip):
 
         response = get(url, headers=headers)
         if response.status_code == 200:
+            import pdb; pdb.set_trace()
             gn_classification = response.json().get("classification")
         else:
             gn_classification = "unknown"
@@ -131,8 +132,6 @@ def main():
 
     # print request count by day
     logger.info(df.groupby(df["created"].dt.day).size().sort_index())
-
-    import pdb; pdb.set_trace()
 
     # add requesting_ip column to dataframe from headers host column
     df["requesting_ip"] = df["headers"].apply(lambda x: x.get("X-Forwarded-For", "Unknown"))

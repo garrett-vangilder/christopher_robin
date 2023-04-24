@@ -1,6 +1,6 @@
 # Christopher Robin, a honey pot story
 
-## Prerequisites
+## Prerequisites for OSX
 
 [brew](https://docs.brew.sh/Installation) must be installed
 
@@ -43,4 +43,28 @@ Prior to booting up infrastructure complete the following:
 1. Create a GCP account
 2. Create a GCP project
 3. Create a related service account for the project
-<!-- TODO: Complete pre-reqs -->
+
+### Environment Variables / Runtime environments
+
+- You must create a `terraform.tfvars` file that matches the example at `root/infra/terraform/terraform.tfvars` to provision resources
+
+- To run data analysis scripts and produce artifacts you must install the python runtime dependencies defined at `root/analysis/requirements.txt` 
+
+- To run the honeypot you must install python runtime requirements defined at `root/honey_pot/requirements.txt`
+
+
+## Walkthrough
+
+I suggest walking through the code in the following order to better understand the capabilities of this projects
+
+- Honeypot code can be found at `root/honey_pot/app.py` this is the dev flask app, production honeypot runs via wsgi server
+
+- Infrastructure code is defined in `root/infra`, here you can see terraform code, specifically 4 modules: core, aws, azure, gcp
+
+- Lambda code can be found at `root/infra/lambdas` these do no work locally, and can only be tested via AWS console. There are two lambdas `data_writer` and `data_ingest` 
+
+- Raw and scrubbed data can be found at `root/data` 
+
+- Scripts to massage and analyze the data can be found at `root/analysis` 
+
+- Artifacts (charts/graphs/etc) can be found at `root/analysis/artifacts`
